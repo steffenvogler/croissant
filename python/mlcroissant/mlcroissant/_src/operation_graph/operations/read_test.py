@@ -1,6 +1,7 @@
 """read_test module."""
 
 import io
+import os
 import pathlib
 import pickle
 import tempfile
@@ -216,3 +217,96 @@ def test_read_dicom_missing_dependency(tmpdir, monkeypatch):
 
     with pytest.raises(ImportError, match="Missing dependency to read DICOM files"):
         read_mod._read_dicom_file(tmpdir / "does_not_matter.dcm")
+
+
+def _write_test_ome_tiff(filepath: epath.Path) -> None:
+    writers = pytest.importorskip("bioio.writers")
+    # Minimal OME-TIFF (2x3, 8-bit).
+    pixel_array = np.arange(2 * 3, dtype=np.uint8).reshape(2, 3)
+    writers.OmeTiffWriter.save(pixel_array, os.fspath(filepath))
+
+
+def test_read_bioio_content(tmpdir):
+    pytest.importorskip("bioio")
+    tmpdir = epath.Path(tmpdir)
+    filepath = tmpdir / "file.ome.tiff"
+    _write_test_ome_tiff(filepath)
+
+    content_field = create_test_field(
+        source=Source(extract=Extract(file_property=FileProperty.content))
+    )
+    operation = Read(
+        operations=operations(),
+        node=create_test_file_object(encoding_formats=[EncodingFormat.BIOIO]),
+        folder=tmpdir,
+        fields=(content_field,),
+    )
+    df = operation.call(Path(filepath=filepath, fullpath=pathlib.PurePath()))
+    assert len(df) == 1
+    assert isinstance(df.iloc[0][FileProperty.content], np.ndarray)
+    # Metadata columns are always exposed.
+    assert df.iloc[0]["dimension_order"] == "TCZYX"
+    assert df.iloc[0]["size_x"] == 3
+
+
+def test_read_bioio_metadata_only(tmpdir):
+    pytest.importorskip("bioio")
+    tmpdir = epath.Path(tmpdir)
+    filepath = tmpdir / "file.ome.tiff"
+    _write_test_ome_tiff(filepath)
+
+    size_field = create_test_field(source=Source(extract=Extract(column="size_x")))
+    operation = Read(
+        operations=operations(),
+        node=create_test_file_object(encoding_formats=[EncodingFormat.BIOIO]),
+        folder=tmpdir,
+        fields=(size_field,),
+    )
+    df = operation.call(Path(filepath=filepath, fullpath=pathlib.PurePath()))
+    assert len(df) == 1
+    assert df.iloc[0]["size_x"] == 3
+    assert df.iloc[0]["size_y"] == 2
+    # The native chunk shape is exposed for chunk-aligned reads.
+    assert df.iloc[0]["chunk_x"] == 3
+    # No content field was requested, so the pixel array is not loaded.
+    assert FileProperty.content not in df.columns
+
+
+def test_read_bioio_nested_zarr_via_fallback(tmpdir):
+    pytest.importorskip("bioio")
+    writers = pytest.importorskip("bioio_ome_zarr.writers")
+    tmpdir = epath.Path(tmpdir)
+    # An OME-Zarr store without a ".zarr" suffix: bioio auto-detection fails, so the
+    # reader must fall back to the OME-Zarr reader explicitly.
+    store = tmpdir / "image"
+    pixel_array = np.arange(2 * 3, dtype=np.uint8).reshape(1, 1, 1, 2, 3)
+    writers.OMEZarrWriter(
+        store=os.fspath(store),
+        level_shapes=[pixel_array.shape],
+        dtype=pixel_array.dtype,
+        axes_names=["t", "c", "z", "y", "x"],
+    ).write_full_volume(pixel_array)
+
+    size_field = create_test_field(source=Source(extract=Extract(column="size_x")))
+    operation = Read(
+        operations=operations(),
+        node=create_test_file_object(encoding_formats=[EncodingFormat.BIOIO]),
+        folder=tmpdir,
+        fields=(size_field,),
+    )
+    df = operation.call(Path(filepath=store, fullpath=pathlib.PurePath()))
+    assert df.iloc[0]["size_x"] == 3
+
+
+def test_read_bioio_missing_dependency(tmpdir, monkeypatch):
+    import mlcroissant._src.operation_graph.operations.read as read_mod
+
+    class _DummyDeps:
+        @property
+        def bioio(self):  # pragma: no cover
+            raise ImportError("simulated missing bioio")
+
+    monkeypatch.setattr(read_mod, "deps", _DummyDeps())
+
+    with pytest.raises(ImportError, match="Missing dependency to read biomedical"):
+        read_mod._open_bioio_image(tmpdir / "does_not_matter.ome.tiff")

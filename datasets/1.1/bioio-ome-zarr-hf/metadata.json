@@ -1,0 +1,102 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "cr": "http://mlcommons.org/croissant/",
+    "rai": "http://mlcommons.org/croissant/RAI/",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "dct": "http://purl.org/dc/terms/",
+    "equivalentProperty": "cr:equivalentProperty",
+    "examples": {
+      "@id": "cr:examples",
+      "@type": "@json"
+    },
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "repeated": "cr:repeated",
+    "replace": "cr:replace",
+    "samplingRate": "cr:samplingRate",
+    "sc": "https://schema.org/",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform"
+  },
+  "@type": "sc:Dataset",
+  "name": "bioio-ome-zarr-hf",
+  "description": "An example referencing a remote OME-Zarr (OME-NGFF v0.5) microscopy store hosted on Hugging Face, read with bioio via the bioio-ome-zarr plugin. OME-Zarr stores a multidimensional image as a chunked, cloud-friendly directory, which lets readers stream chunk-aligned regions without downloading the whole image.",
+  "conformsTo": "http://mlcommons.org/croissant/1.1",
+  "creator": {
+    "@type": "sc:Organization",
+    "name": "ome2024-ngff-challenge",
+    "url": "https://huggingface.co/datasets/LuciexJune/ome-vip-dataset"
+  },
+  "isLiveDataset": true,
+  "keywords": [
+    "bioio",
+    "OME-Zarr",
+    "OME-NGFF",
+    "microscopy",
+    "biomedical",
+    "streaming"
+  ],
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "url": "https://huggingface.co/datasets/LuciexJune/ome-vip-dataset",
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "zarr-store",
+      "name": "ome-vip-dataset",
+      "contentUrl": "https://huggingface.co/datasets/LuciexJune/ome-vip-dataset/resolve/main",
+      "encodingFormat": "application/x-bioio"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "@id": "images",
+      "name": "images",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "images/image_content",
+          "name": "images/image_content",
+          "description": "The multidimensional pixel array (T, C, Z, Y, X) read by bioio.",
+          "dataType": "sc:VideoObject",
+          "source": {
+            "fileObject": {
+              "@id": "zarr-store"
+            },
+            "extract": {
+              "fileProperty": "content"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

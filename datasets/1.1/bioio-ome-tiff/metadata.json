@@ -1,0 +1,271 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "cr": "http://mlcommons.org/croissant/",
+    "rai": "http://mlcommons.org/croissant/RAI/",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "dct": "http://purl.org/dc/terms/",
+    "equivalentProperty": "cr:equivalentProperty",
+    "examples": {
+      "@id": "cr:examples",
+      "@type": "@json"
+    },
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "repeated": "cr:repeated",
+    "replace": "cr:replace",
+    "samplingRate": "cr:samplingRate",
+    "sc": "https://schema.org/",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform"
+  },
+  "@type": "sc:Dataset",
+  "name": "bioio-ome-tiff",
+  "description": "A minimal example of reading biomedical images with bioio (https://github.com/bioio-devs/bioio) in Croissant. The same OME-TIFF files are exposed two ways: the `images` record set loads the pixel array, while the `metadata` record set reads only the image headers (dimensions, dtype) without loading any pixels.",
+  "conformsTo": "http://mlcommons.org/croissant/1.1",
+  "creator": {
+    "@type": "sc:Organization",
+    "name": "MLCommons"
+  },
+  "keywords": [
+    "bioio",
+    "OME-TIFF",
+    "microscopy",
+    "biomedical",
+    "Image"
+  ],
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "url": "https://github.com/bioio-devs/bioio",
+  "distribution": [
+    {
+      "@type": "cr:FileSet",
+      "@id": "image-files",
+      "name": "image-files",
+      "description": "OME-TIFF image files (pixel content).",
+      "encodingFormat": "application/x-bioio",
+      "includes": "data/*.ome.tiff"
+    },
+    {
+      "@type": "cr:FileSet",
+      "@id": "image-headers",
+      "name": "image-headers",
+      "description": "The same OME-TIFF files, read for metadata only.",
+      "encodingFormat": "application/x-bioio",
+      "includes": "data/*.ome.tiff"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "@id": "images",
+      "name": "images",
+      "key": {
+        "@id": "images/image_filename"
+      },
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "images/image_filename",
+          "name": "images/image_filename",
+          "description": "The filename of the image.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "image-files"
+            },
+            "extract": {
+              "fileProperty": "filename"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "images/image_content",
+          "name": "images/image_content",
+          "description": "The multidimensional pixel array (T, C, Z, Y, X) read by bioio.",
+          "dataType": "sc:VideoObject",
+          "source": {
+            "fileSet": {
+              "@id": "image-files"
+            },
+            "extract": {
+              "fileProperty": "content"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "cr:RecordSet",
+      "@id": "metadata",
+      "name": "metadata",
+      "key": {
+        "@id": "metadata/filename"
+      },
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/filename",
+          "name": "metadata/filename",
+          "description": "The filename of the image.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "image-headers"
+            },
+            "extract": {
+              "fileProperty": "filename"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/dimension_order",
+          "name": "metadata/dimension_order",
+          "description": "The bioio dimension order, e.g. TCZYX.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "image-headers"
+            },
+            "extract": {
+              "column": "dimension_order"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/size_x",
+          "name": "metadata/size_x",
+          "description": "Image width in pixels.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileSet": {
+              "@id": "image-headers"
+            },
+            "extract": {
+              "column": "size_x"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/size_y",
+          "name": "metadata/size_y",
+          "description": "Image height in pixels.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileSet": {
+              "@id": "image-headers"
+            },
+            "extract": {
+              "column": "size_y"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/size_c",
+          "name": "metadata/size_c",
+          "description": "Number of channels.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileSet": {
+              "@id": "image-headers"
+            },
+            "extract": {
+              "column": "size_c"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/dtype",
+          "name": "metadata/dtype",
+          "description": "The pixel data type.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "image-headers"
+            },
+            "extract": {
+              "column": "dtype"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/chunk_z",
+          "name": "metadata/chunk_z",
+          "description": "Native storage chunk size along Z (for chunk-aligned reads).",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileSet": {
+              "@id": "image-headers"
+            },
+            "extract": {
+              "column": "chunk_z"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/chunk_y",
+          "name": "metadata/chunk_y",
+          "description": "Native storage chunk size along Y (for chunk-aligned reads).",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileSet": {
+              "@id": "image-headers"
+            },
+            "extract": {
+              "column": "chunk_y"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/chunk_x",
+          "name": "metadata/chunk_x",
+          "description": "Native storage chunk size along X (for chunk-aligned reads).",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileSet": {
+              "@id": "image-headers"
+            },
+            "extract": {
+              "column": "chunk_x"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

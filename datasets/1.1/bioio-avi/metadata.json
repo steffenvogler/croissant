@@ -1,0 +1,99 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "cr": "http://mlcommons.org/croissant/",
+    "rai": "http://mlcommons.org/croissant/RAI/",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "dct": "http://purl.org/dc/terms/",
+    "equivalentProperty": "cr:equivalentProperty",
+    "examples": {
+      "@id": "cr:examples",
+      "@type": "@json"
+    },
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "repeated": "cr:repeated",
+    "replace": "cr:replace",
+    "samplingRate": "cr:samplingRate",
+    "sc": "https://schema.org/",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform"
+  },
+  "@type": "sc:Dataset",
+  "name": "bioio-avi",
+  "description": "An example referencing an AVI video, read with bioio via the bioio-imageio plugin (`pip install bioio-imageio`). AVI is used for time-lapse recordings.",
+  "conformsTo": "http://mlcommons.org/croissant/1.1",
+  "creator": {
+    "@type": "sc:Organization",
+    "name": "MLCommons"
+  },
+  "isLiveDataset": true,
+  "keywords": [
+    "bioio",
+    "AVI",
+    "video",
+    "time-lapse"
+  ],
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "url": "https://archive.org/details/SampleVideo1280x7205mb",
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "avi-file",
+      "name": "SampleVideo_1280x720_5mb.avi",
+      "contentUrl": "https://archive.org/download/SampleVideo1280x7205mb/SampleVideo_1280x720_5mb.avi",
+      "encodingFormat": "application/x-bioio"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "@id": "images",
+      "name": "images",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "images/image_content",
+          "name": "images/image_content",
+          "description": "The multidimensional pixel array (T, C, Z, Y, X) read by bioio.",
+          "dataType": "sc:VideoObject",
+          "source": {
+            "fileObject": {
+              "@id": "avi-file"
+            },
+            "extract": {
+              "fileProperty": "content"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

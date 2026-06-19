@@ -102,6 +102,21 @@ class OptionalDependencies(object):
         return _try_import("pydicom", package_name="pydicom")
 
     @cached_class_property
+    def bioio(cls) -> types.ModuleType:  # pylint: disable=invalid-name
+        """Cached bioio module."""
+        return _try_import("bioio", package_name="bioio")
+
+    @cached_class_property
+    def bioio_bioformats(cls) -> types.ModuleType:  # pylint: disable=invalid-name
+        """Cached bioio-bioformats module (Bio-Formats fallback reader)."""
+        return _try_import("bioio_bioformats", package_name="bioio-bioformats")
+
+    @cached_class_property
+    def bioio_ome_zarr(cls) -> types.ModuleType:  # pylint: disable=invalid-name
+        """Cached bioio-ome-zarr module (reads nested or suffixless Zarr stores)."""
+        return _try_import("bioio_ome_zarr", package_name="bioio-ome-zarr")
+
+    @cached_class_property
     def torchdata_datapipes(cls) -> types.ModuleType:
         """Cached torchdata module."""
         return _try_import("torchdata.datapipes", package_name="torchdata")

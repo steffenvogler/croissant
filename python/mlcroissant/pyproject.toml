@@ -53,6 +53,7 @@ dev = [
   "mlcroissant[git]",
   "mlcroissant[image]",
   "mlcroissant[dicom]",
+  "mlcroissant[bioio]",
   "mlcroissant[parquet]",
   "mypy",
   "pyflakes",
@@ -72,6 +73,12 @@ beam = [
 git = ["GitPython"]
 image = ["Pillow"]
 dicom = ["pydicom>=2.4.0"]
+# bioio reads biomedical/microscopy images (CZI, OME-TIFF, OME-Zarr, HDF5, AVI,...).
+# Each file format is handled by a dedicated bioio plugin; install extra plugins as
+# needed, e.g. `pip install bioio-czi bioio-imageio`.
+bioio = ["bioio>=3.0.0", "bioio-ome-tiff", "bioio-ome-zarr"]
+# Bio-Formats fallback reader (~150 formats). Requires a Java runtime.
+bioformats = ["bioio-bioformats"]
 parquet = ["pyarrow"]
 
 [project.scripts]

@@ -5,6 +5,7 @@ import enum
 import gzip
 import io
 import json
+import os
 import pathlib
 from typing import Any
 
@@ -142,6 +143,81 @@ def _read_dicom_file(filepath: epath.Path) -> pd.DataFrame:
     return pd.DataFrame({FileProperty.content: [pixel_array]})
 
 
+def _open_bioio_image(filepath: epath.Path):
+    """Opens a biomedical image with bioio, falling back to Bio-Formats.
+
+    bioio picks the most specific reader plugin for the file, so a natively
+    supported file (CZI, OME-TIFF, OME-Zarr, ...) never starts the Bio-Formats
+    JVM. Only when no installed plugin can read the file is the optional
+    Bio-Formats reader (`mlcroissant[bioformats]`, requires Java) consulted.
+    """
+    try:
+        bioio = deps.bioio
+    except ImportError as e:
+        raise ImportError(
+            "Missing dependency to read biomedical image files. bioio is not"
+            " installed. Please, install `pip install mlcroissant[bioio]`."
+        ) from e
+    path = os.fspath(filepath)
+    try:
+        return bioio.BioImage(path)
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        last_error = e
+    # Auto-detection keys on the file extension; nested OME-Zarr groups and
+    # tar-extracted stores may not end in ".zarr", and some formats need the
+    # optional Bio-Formats reader. Try those readers explicitly before giving up.
+    for module in ("bioio_ome_zarr", "bioio_bioformats"):
+        try:
+            reader = getattr(deps, module).Reader
+        except ImportError:
+            continue
+        try:
+            return bioio.BioImage(path, reader=reader)
+        except Exception:  # pylint: disable=broad-exception-caught
+            continue
+    raise NotImplementedError(
+        f"Could not read {path!r} with the installed bioio plugins. Install a"
+        " matching plugin (e.g. `pip install bioio-czi`) or the Bio-Formats fallback"
+        " `pip install mlcroissant[bioformats]` (requires Java)."
+    ) from last_error
+
+
+def _read_bioio_file(filepath: epath.Path, fields: tuple[Field, ...]) -> pd.DataFrame:
+    """Reads a biomedical image with bioio and returns it as a pandas DataFrame.
+
+    Only image metadata (dimensions, dtype, native chunk shape) is read; the pixel
+    array is materialized only when a field extracts the file `content`.
+    """
+    image = _open_bioio_image(filepath)
+    dims = image.dims
+    # Native storage chunk shape (T, C, Z, Y, X), so callers can plan chunk-aligned
+    # reads with bioio (e.g. `image.get_image_dask_data(...)`) without loading pixels.
+    chunk = image.dask_data.chunksize
+    columns: dict[str, list[Any]] = {
+        "dimension_order": [dims.order],
+        "size_t": [dims.T],
+        "size_c": [dims.C],
+        "size_z": [dims.Z],
+        "size_y": [dims.Y],
+        "size_x": [dims.X],
+        "chunk_t": [chunk[0]],
+        "chunk_c": [chunk[1]],
+        "chunk_z": [chunk[2]],
+        "chunk_y": [chunk[3]],
+        "chunk_x": [chunk[4]],
+        "dtype": [str(image.dtype)],
+    }
+    df = pd.DataFrame(columns)
+    extracts_content = any(
+        field.source is not None
+        and field.source.extract.file_property == FileProperty.content
+        for field in fields
+    )
+    if extracts_content:
+        df[FileProperty.content] = [image.data]  # type: ignore[call-overload]
+    return df
+
+
 @dataclasses.dataclass(frozen=True, repr=False)
 class Read(Operation):
     """Reads from a file and output a pd.DataFrame."""
@@ -155,6 +231,10 @@ class Read(Operation):
     ) -> pd.DataFrame:
         """Extracts the `source` file to `target`."""
         filepath = file.filepath
+        # bioio reads directory-based stores (e.g. OME-Zarr), so it must run before
+        # the git-lfs/open("rb") checks below, which assume a single regular file.
+        if EncodingFormat.BIOIO in encoding_formats:
+            return _read_bioio_file(filepath, self.fields)
         if is_git_lfs_file(filepath):
             download_git_lfs_file(file)
         reading_method = _reading_method(self.node, self.fields)

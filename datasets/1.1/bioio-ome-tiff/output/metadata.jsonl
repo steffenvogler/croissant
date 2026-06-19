@@ -1,0 +1,2 @@
+{"metadata/filename": "synthetic_blob_0001.ome.tiff", "metadata/dimension_order": "TCZYX", "metadata/size_x": 64, "metadata/size_y": 64, "metadata/size_c": 1, "metadata/dtype": "uint8", "metadata/chunk_z": 1, "metadata/chunk_y": 64, "metadata/chunk_x": 64}
+{"metadata/filename": "synthetic_blob_0002.ome.tiff", "metadata/dimension_order": "TCZYX", "metadata/size_x": 64, "metadata/size_y": 64, "metadata/size_c": 1, "metadata/dtype": "uint8", "metadata/chunk_z": 1, "metadata/chunk_y": 64, "metadata/chunk_x": 64}

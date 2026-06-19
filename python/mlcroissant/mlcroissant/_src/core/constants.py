@@ -241,6 +241,11 @@ class EncodingFormat:
     GIT = "git+https"
     JPG = "image/jpeg"
     DICOM = "image/dicom"
+    # Umbrella format for biomedical/microscopy images of any kind (CZI, OME-TIFF,
+    # OME-Zarr, HDF5/Imaris, ND2, LIF, AVI,...). bioio picks the right reader from
+    # the file itself, so a single identifier keeps EncodingFormat maintainable.
+    # See read._read_bioio_file.
+    BIOIO = "application/x-bioio"
     JSON = "application/json"
     JSON_LINES = "application/jsonlines"
     MP3 = "audio/mpeg"

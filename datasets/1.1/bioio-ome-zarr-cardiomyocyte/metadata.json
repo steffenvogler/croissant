@@ -1,0 +1,233 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "containedIn": "cr:containedIn",
+    "cr": "http://mlcommons.org/croissant/",
+    "rai": "http://mlcommons.org/croissant/RAI/",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "dct": "http://purl.org/dc/terms/",
+    "equivalentProperty": "cr:equivalentProperty",
+    "examples": {
+      "@id": "cr:examples",
+      "@type": "@json"
+    },
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "repeated": "cr:repeated",
+    "replace": "cr:replace",
+    "samplingRate": "cr:samplingRate",
+    "sc": "https://schema.org/",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform"
+  },
+  "@type": "sc:Dataset",
+  "name": "bioio-ome-zarr-cardiomyocyte",
+  "description": "An example of a remote OME-Zarr loaded end-to-end through Croissant. The OME-NGFF store is distributed as a .zip on Zenodo, so Croissant downloads and extracts it, then reads the image with bioio. The store is an HCS plate, so the image lives in a well/field subgroup (B/03/0); only the headers (dimensions, chunking) are read here, without loading any pixels.",
+  "conformsTo": "http://mlcommons.org/croissant/1.1",
+  "creator": {
+    "@type": "sc:Person",
+    "name": "Joel L\u00fcthi"
+  },
+  "keywords": [
+    "bioio",
+    "OME-Zarr",
+    "OME-NGFF",
+    "HCS",
+    "microscopy",
+    "biomedical"
+  ],
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "url": "https://zenodo.org/records/13305156",
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "data-zip",
+      "name": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr.zip",
+      "contentUrl": "https://zenodo.org/records/13305156/files/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr.zip",
+      "encodingFormat": "application/zip",
+      "md5": "efc21fe8d4ea3abab76226d8c166452c"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "well-B03",
+      "name": "well B/03 field 0",
+      "description": "The multiscale image for well B03, field 0.",
+      "containedIn": {
+        "@id": "data-zip"
+      },
+      "contentUrl": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0",
+      "encodingFormat": "application/x-bioio"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "@id": "metadata",
+      "name": "metadata",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/dimension_order",
+          "name": "metadata/dimension_order",
+          "description": "The bioio dimension order, e.g. TCZYX.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "well-B03"
+            },
+            "extract": {
+              "column": "dimension_order"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/size_x",
+          "name": "metadata/size_x",
+          "description": "Image width in pixels.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileObject": {
+              "@id": "well-B03"
+            },
+            "extract": {
+              "column": "size_x"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/size_y",
+          "name": "metadata/size_y",
+          "description": "Image height in pixels.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileObject": {
+              "@id": "well-B03"
+            },
+            "extract": {
+              "column": "size_y"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/size_z",
+          "name": "metadata/size_z",
+          "description": "Number of Z planes.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileObject": {
+              "@id": "well-B03"
+            },
+            "extract": {
+              "column": "size_z"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/size_c",
+          "name": "metadata/size_c",
+          "description": "Number of channels.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileObject": {
+              "@id": "well-B03"
+            },
+            "extract": {
+              "column": "size_c"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/chunk_z",
+          "name": "metadata/chunk_z",
+          "description": "Native chunk size along Z.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileObject": {
+              "@id": "well-B03"
+            },
+            "extract": {
+              "column": "chunk_z"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/chunk_y",
+          "name": "metadata/chunk_y",
+          "description": "Native chunk size along Y.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileObject": {
+              "@id": "well-B03"
+            },
+            "extract": {
+              "column": "chunk_y"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/chunk_x",
+          "name": "metadata/chunk_x",
+          "description": "Native chunk size along X.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileObject": {
+              "@id": "well-B03"
+            },
+            "extract": {
+              "column": "chunk_x"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "metadata/dtype",
+          "name": "metadata/dtype",
+          "description": "The pixel data type.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "well-B03"
+            },
+            "extract": {
+              "column": "dtype"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

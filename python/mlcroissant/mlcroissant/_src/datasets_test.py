@@ -243,6 +243,8 @@ def test_hermetic_loading_1_0(dataset_name, record_set_name, num_records, filter
     [
         ["recipes/minimal_multilingual.json", "examples", -1],
         ["zenodo-head-mri/metadata.json", "images", -1],
+        ["bioio-ome-tiff/metadata.json", "images", 2],
+        ["bioio-ome-tiff/metadata.json", "metadata", 2],
     ],
 )
 def test_hermetic_loading_1_1(dataset_name, record_set_name, num_records):
